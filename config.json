@@ -1,0 +1,19 @@
+{
+    "testing" :{
+        "url" : "http://127.0.0.1",
+        "login" : {
+            "portNo": 1000
+        },
+        "signup" :{
+            "portNo": 2000
+        },
+        "dbserver" : {
+            "portNo": 3000,
+            "dbPath" : "../data/bankingSystem.db"
+        },
+
+        "homePage" : "home.html"
+    },
+
+    "production":{}
+}
