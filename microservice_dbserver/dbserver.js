@@ -396,6 +396,7 @@ app.get("/newAccount", function(req, res) {
 })
 
 app.get("/deleteAccount", function(req, res) {
+	
 	var db = Database.getInstance();
 	console.log("newAccount on DBServer")
 	console.log(req.query)
@@ -491,10 +492,10 @@ app.get("/addCard", function(req, res) {
 })
 app.get("/getCardInfo", function(req, res) {
 	var db = Database.getInstance();
-	console.log("newAccount on DBServer")
+	console.log("getCardInfo on DBServer")
 	console.log(req.query)
 	
-	db.get("select * from Customer, Account, cards where cards.accountID = Account.accountID AND Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND cardNo='"+req.query.cardNo+"'",function(err,row){
+	db.get("select * from Customer, Account, cards where cards.accountID = Account.accountId AND Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND cardNo='"+req.query.cardNo+"'",function(err,row){
 
 		if(!row){
 			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id/ Card No.!'}");
@@ -517,7 +518,35 @@ app.get("/getCardInfo", function(req, res) {
 		}
 	})
 })
-app.get("/deteleCard", function(req, res) {
+app.get("/deleteCard", function(req, res) {
+	var db = Database.getInstance();
+	console.log("newAccount on DBServer")
+	console.log(req.query)
+	db.get("select * from Customer, Account, cards where cards.accountID = Account.accountId AND Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND cardNo='"+req.query.cardNo+"'",function(err,row){
 
+		if(!row){
+			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id/ Card No.!'}");
+			return;
+		}
+		else {
+			db.get("select * from cards where cardNo ='"+req.query.cardNo+"'",function(err,row){
+					if(!row){
+						res.status(209).send("{'result':'Error', 'Error':'No Account Present!'}");
+						return;
+					} else {
+						if((req.query.cvv==row['cvv']) && (req.query.expiry==row['expiry'])) {
+							db.run("delete from cards where cardNo='"+req.query.cardNo+"'")
+							console.log(row)
+							res.status(200).send({'result':'Deleted', 'Message':'Deleted Card No. '+req.query.cardNo+' successfully'});
+							return;
+						} else {
+							res.status(209).send("{'result':'Error', 'Error':'Credential Matching Issue'}");
+							return;
+						}						
+					} 
+				})
+			
+		}
+	})
 })
 app.listen(portNo)

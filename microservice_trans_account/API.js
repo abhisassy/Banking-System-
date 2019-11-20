@@ -236,8 +236,8 @@ app.get("/getAccountInfo", function(req, res, next) {
     
     axios.get(dbUrl+"/getAccountInfo",{
         params :{
-            customerId  : req.body.customerId,
-            accountID   : req.body.accountId
+            customerId  : req.query.customerId,
+            accountID   : req.query.accountId
         }
     })
     .then(response => {
@@ -276,8 +276,8 @@ app.get("/getCardInfo", function(req, res, next) {
 
     axios.get(dbUrl+"/getCardInfo",{
         params : {
-            customerId  : req.body.customerId,
-            cardNo      : req.body.cardNo
+            customerId  : req.query.customerId,
+            cardNo      : req.query.cardNo
         }
     })
     .then(response => {
@@ -291,8 +291,8 @@ app.get("/getCardInfo", function(req, res, next) {
 
 })
 
-app.post("/deteleCard", function(req, res, next) {
-    console.log("deteleCard API called")
+app.post("/deleteCard", function(req, res, next) {
+    console.log("deleteCard API called")
     axios.get(dbUrl+"/deleteCard",{
         params : {
             customerId  : req.body.customerId,
