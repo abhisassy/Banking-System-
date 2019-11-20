@@ -97,7 +97,6 @@ app.post("/upiTransfer", function(req, res, next) {
             amount      : req.body.amount,
             srcUPI      : req.body.srcUPI,
             destUPI     : req.body.destUPI
-
         }
     })
     .then(response => {
@@ -112,12 +111,13 @@ app.post("/upiTransfer", function(req, res, next) {
 
 app.post("/normalTransfer", function(req, res, next) {
     console.log("normalTransfer API called")
-    axios.get(dbUrl+"/upiTransfer",{
+    axios.get(dbUrl+"/normalTransfer",{
 		params :{
             customerId  : req.body.customerId,
             amount      : req.body.amount,
             srcAccount  : req.body.srcAccount,
-            destAccount : req.body.destAccount
+            destAccount : req.body.destAccount,
+            priority    : "false"
         }
     })
     .then(response => {

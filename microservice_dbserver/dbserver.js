@@ -171,7 +171,7 @@ app.get("/depositMoney", function(req, res) {
 	console.log("depositMoney on DBServer")
 	console.log(req.query)
 	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.accountId+"'",function(err,row){
-
+		console.log("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.accountId+"'")
 		if(!row){
 			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id/Account Id/No Account for Customer!'}");
 			return;
@@ -188,10 +188,10 @@ app.get("/depositMoney", function(req, res) {
 
 app.get("/instantTransfer", function(req, res) {
 	var db = Database.getInstance();
-	console.log("withdrawMoney on DBServer")
+	console.log("instantTransfer on DBServer")
 	console.log(req.query)
 	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcAccount+"'",function(err,row){
-
+		console.log("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcAccount+"'")
 		if(!row){
 			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id/Account Id/No Account for Customer!'}");
 			return;
@@ -212,7 +212,7 @@ app.get("/instantTransfer", function(req, res) {
 					})
 					db.run("update Account set balance = balance - "+req.query.amount+" where customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcAccount+"'")
 					db.run("update Account set balance = balance + "+req.query.amount+" where accountId='"+req.query.destAccount+"'")
-					db.run("insert into 'transaction' values ('"+req.query.destAccount+"', '"+req.query.srcAccount+"', '"+req.query.amount+"', '"+req.query.priority+"')")
+					db.run("insert into 'transaction' values ('"+req.query.destAccount+"', '"+req.query.srcAccount+"', '"+req.query.amount+"', '"+req.query.priority+"', "+"NULL"+")")
 					res.status(200).send(row);
 				}
 				else {
@@ -223,7 +223,7 @@ app.get("/instantTransfer", function(req, res) {
 						}
 					})
 					db.run("update Account set balance = balance - "+req.query.amount+" where customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcAccount+"'")
-					db.run("insert into 'transaction' values ('"+req.query.destAccount+"', '"+req.query.srcAccount+"', '"+req.query.amount+"', '"+req.query.priority+"')")
+					db.run("insert into 'transaction' values ('"+req.query.destAccount+"', '"+req.query.srcAccount+"', '"+req.query.amount+"', '"+req.query.priority+"', "+"NULL"+")")
 					res.status(200).send(row);
 				}
 				
@@ -232,34 +232,36 @@ app.get("/instantTransfer", function(req, res) {
 	})
 
 })
+
 app.get("/upiTransfer", function(req, res) {
 	var db = Database.getInstance();
 	console.log("withdrawMoney on DBServer")
 	console.log(req.query)
-	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcUPI+"'",function(err,row){
+	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND UPI='"+req.query.srcUPI+"'",function(err,row){
 
 		if(!row){
 			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id/Account Id/No Account for Customer!'}");
 			return;
 		}
 		else{
-			db.get("select * from Account where accountID='"+req.query.srcUPI+"'",function(err,row){
+			db.get("select * from Account where UPI='"+req.query.srcUPI+"'",function(err,row){
 				console.log(row)
 				if(row['balance']<req.query.amount){			
 					res.status(209).send("{'result':'Error', 'Error':'Not Enough Balance'}");
 					return;
 				}
 				else {
-					db.get("select * from Account where accountID='"+req.query.srcUPI+"'",function(err,row) {
+					db.get("select * from Account where UPI='"+req.query.srcUPI+"'",function(err,row) {
 						if(!row) {
 							res.status(209).send("{'result':'Error', 'Error':'Invalid Destination Account Id!'}");
 							return;
+						} else{
+							db.run("update Account set balance = balance - "+req.query.amount+" where customerID='"+req.query.customerId+"' AND UPI='"+req.query.srcUPI+"'")
+							db.run("update Account set balance = balance + "+req.query.amount+" where UPI='"+req.query.destUPI+"'")
+							db.run("insert into 'UPItransaction' values ('"+req.query.srcUPI+"', '"+req.query.destUPI+"', '"+req.query.amount+"', "+"NULL"+")")
+							res.status(200).send(row);
 						}
 					})
-					db.run("update Account set balance = balance - "+req.query.amount+" where customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcUPI+"'")
-					db.run("update Account set balance = balance + "+req.query.amount+" where accountId='"+req.query.destUPI+"'")
-					db.run("insert into 'UPItransaction' values ('"+req.query.srcUPI+"', '"+req.query.destUPI+"', '"+req.query.amount+"')")
-					res.status(200).send(row);
 				}
 				
 			})
@@ -269,7 +271,7 @@ app.get("/upiTransfer", function(req, res) {
 
 app.get("/normalTransfer", function(req, res) {
 	var db = Database.getInstance();
-	console.log("withdrawMoney on DBServer")
+	console.log("normalTransfer on DBServer")
 	console.log(req.query)
 	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcAccount+"'",function(err,row){
 
@@ -293,7 +295,7 @@ app.get("/normalTransfer", function(req, res) {
 					})
 					db.run("update Account set balance = balance - "+req.query.amount+" where customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcAccount+"'")
 					db.run("update Account set balance = balance + "+req.query.amount+" where accountId='"+req.query.destAccount+"'")
-					db.run("insert into 'transaction' values ('"+req.query.destAccount+"', '"+req.query.srcAccount+"', '"+req.query.amount+"', '"+req.query.priority+"')")
+					db.run("insert into 'transaction' values ('"+req.query.destAccount+"', '"+req.query.srcAccount+"', '"+req.query.amount+"', '"+req.query.priority+"', "+"NULL"+")")
 					res.status(200).send(row);
 				}
 				else {
@@ -304,7 +306,7 @@ app.get("/normalTransfer", function(req, res) {
 						}
 					})
 					db.run("update Account set balance = balance - "+req.query.amount+" where customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcAccount+"'")
-					db.run("insert into 'transaction' values ('"+req.query.destAccount+"', '"+req.query.srcAccount+"', '"+req.query.amount+"', '"+req.query.priority+"')")
+					db.run("insert into 'transaction' values ('"+req.query.destAccount+"', '"+req.query.srcAccount+"', '"+req.query.amount+"', '"+req.query.priority+"', "+"NULL"+")")
 					res.status(200).send(row);
 				}
 				
@@ -313,34 +315,40 @@ app.get("/normalTransfer", function(req, res) {
 	})
 })
 app.get("/checkBalance", function(req, res) {
+
 	var db = Database.getInstance();
 	console.log("checkBalance on DBServer")
 	console.log(req.query)
-	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.accountId+"'",function(err,row){
+	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcAccount+"'",function(err,row){
 
 		if(!row){
-			res.status(209).send("Invalid Customer Id/Account Id/No Account for Customer!");
+			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id/Account Id/No Account for Customer!'}");
 			return;
 		}
-		else{
+		else{	
 			db.get("select * from Account where accountID='"+req.query.accountId+"'",function(err,row){
-			
-				if(!row){			
-					res.status(209).send("Some Other Error");
-					return;
-				}
-				else{
-					console.log(row)
-					res.status(200).send(row);
-				}
-				
+				console.log(row)
+				res.status(200).send(row);
 			})
 		}
 	})
 
 })
 app.get("/getProfile", function(req, res) {
+	var db = Database.getInstance();
+	console.log("withdrawMoney on DBServer")
+	console.log(req.query)
+	db.get("select * from Customer where customerID ='"+req.query.customerId+"'",function(err,row){
 
+		if(!row){
+			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id!'}");
+			return;
+		}
+		else{
+			console.log(row)
+			res.status(200).send(row);
+		}
+	})
 })
 app.get("/updateProfile", function(req, res) {
 
