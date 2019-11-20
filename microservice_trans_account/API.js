@@ -135,7 +135,7 @@ app.get("/checkBalance", function(req, res, next) {
     console.log("checkBalanceBalance API called")
     console.log(req)
 
-    axios.get(dbUrl+"/checkBalance",{
+    axios.get(dbUrl+"/getAccountInfo",{
         params :{
             customerId  : req.query.customerId,
             accountId   : req.query.accountId,
@@ -174,6 +174,22 @@ app.get("/getProfile", function(req, res, next) {
 
 app.post("/updateProfile", function(req, res, next) {
     console.log("updateProfile API called")
+    axios.get(dbUrl+"/updateProfile",{
+        params :{
+            firstName  : req.body.firstName,
+            lastName   : req.body.lastName,
+            email      : req.body.email,
+            
+        }
+    })
+    .then(response => {
+        res.status(response.status).send(response.data)
+    })
+	.catch(error => {
+            console.log(error.response.data)
+            console.log(error.response.status)
+            res.status(error.response.status).send(error.response.data)
+    })
 })
 
 app.post("/newAccount", function(req, res, next) {

@@ -314,8 +314,58 @@ app.get("/normalTransfer", function(req, res) {
 		}
 	})
 })
-app.get("/checkBalance", function(req, res) {
 
+app.get("/getProfile", function(req, res) {
+	var db = Database.getInstance();
+	console.log("getProfile on DBServer")
+	console.log(req.query)
+	db.get("select * from Customer where customerID ='"+req.query.customerId+"'",function(err,row){
+
+		if(!row){
+			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id!'}");
+			return;
+		}
+		else{
+			console.log(row)
+			res.status(200).send(row);
+		}
+	})
+})
+app.get("/updateProfile", function(req, res) {
+	var db = Database.getInstance();
+	console.log("withdrawMoney on DBServer")
+	console.log(req.query)
+	db.get("select * from Customer where customerID ='"+req.query.customerId+"'",function(err,row){
+
+		if(!row){
+			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id!'}");
+			return;
+		}
+		else{
+			db.run("update Customer set firstName = '"+req.query.firstName+"',lastName = '"+req.query.lastName+"', email = '"+req.query.email+"' where customerID = '"+req.query.customerId+"'")
+			db.get("select * from Customer where customerID ='"+req.query.customerId+"'",function(err,row){
+
+				if(!row){
+					res.status(209).send("{'result':'Error', 'Error':'No Update!'}");
+					return;
+				}
+				else{
+					console.log(row)
+					res.status(200).send(row);
+					return;
+				}
+			})
+			
+		}
+	})
+})
+app.get("/newAccount", function(req, res) {
+
+})
+app.get("/deleteAccount", function(req, res) {
+
+})
+app.get("/getAccountInfo", function(req, res) {
 	var db = Database.getInstance();
 	console.log("checkBalance on DBServer")
 	console.log(req.query)
@@ -332,35 +382,6 @@ app.get("/checkBalance", function(req, res) {
 			})
 		}
 	})
-
-})
-app.get("/getProfile", function(req, res) {
-	var db = Database.getInstance();
-	console.log("withdrawMoney on DBServer")
-	console.log(req.query)
-	db.get("select * from Customer where customerID ='"+req.query.customerId+"'",function(err,row){
-
-		if(!row){
-			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id!'}");
-			return;
-		}
-		else{
-			console.log(row)
-			res.status(200).send(row);
-		}
-	})
-})
-app.get("/updateProfile", function(req, res) {
-
-})
-app.get("/newAccount", function(req, res) {
-
-})
-app.get("/deleteAccount", function(req, res) {
-
-})
-app.get("/getAccountInfo", function(req, res) {
-
 })
 app.get("/addCard", function(req, res) {
 
