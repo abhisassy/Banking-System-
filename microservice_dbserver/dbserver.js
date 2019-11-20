@@ -449,10 +449,73 @@ app.get("/getAccountInfo", function(req, res) {
 	})
 })
 app.get("/addCard", function(req, res) {
+	var db = Database.getInstance();
+	console.log("newAccount on DBServer")
+	console.log(req.query)
+	
+	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.accountID+"'",function(err,row){
 
+		if(!row){
+			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id!'}");
+			return;
+		}
+		else{
+			let num = randomIntInc(1000,10000)
+			let cardnum = ""+num.toString()
+			num = randomIntInc(1000,10000)
+			cardnum += num.toString()
+			num = randomIntInc(1000,10000)
+			cardnum += num.toString()
+			
+			let expMonth = randomIntInc(10,13)
+			let expYear = randomIntInc(22,27)
+			let cvv = randomIntInc(100,999)
+			let pin = randomIntInc(1000,9999)
+			
+			db.run("insert into cards values ('"+req.query.accountID+"', '"+cardnum+"', '"+expMonth+"-"+expYear+"', '"+cvv+"', '"+pin+"', '"+req.query.type+"')")
+			db.get("select * from cards where cardNo ='"+cardnum+"'",function(err,row){
+
+				if(!row){
+					res.status(209).send("{'result':'Error', 'Error':'No New Card'}");
+					return;
+				}
+				else{
+					console.log(row)
+					res.status(200).send(row);
+					return;
+				}
+			})
+			
+		}
+	})
 })
 app.get("/getCardInfo", function(req, res) {
+	var db = Database.getInstance();
+	console.log("newAccount on DBServer")
+	console.log(req.query)
+	
+	db.get("select * from Customer, Account, cards where cards.accountID = Account.accountID AND Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND cardNo='"+req.query.cardNo+"'",function(err,row){
 
+		if(!row){
+			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id/ Card No.!'}");
+			return;
+		}
+		else{
+			db.get("select * from cards where cardNo ='"+req.query.cardNo+"'",function(err,row){
+
+				if(!row){
+					res.status(209).send("{'result':'Error', 'Error':'No Card'}");
+					return;
+				}
+				else{
+					console.log(row)
+					res.status(200).send(row);
+					return;
+				}
+			})
+			
+		}
+	})
 })
 app.get("/deteleCard", function(req, res) {
 

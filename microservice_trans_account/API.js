@@ -277,7 +277,7 @@ app.get("/getCardInfo", function(req, res, next) {
     axios.get(dbUrl+"/getCardInfo",{
         params : {
             customerId  : req.body.customerId,
-            cardNo   : req.body.cardNo
+            cardNo      : req.body.cardNo
         }
     })
     .then(response => {
