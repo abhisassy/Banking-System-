@@ -138,13 +138,14 @@ app.get("/validateuser",function(req,res){
 
 })
 
+//Withdraw Money
 app.get("/withdrawMoney", function(req, res) {
 	var db = Database.getInstance();
 	
-	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND customerId='"+req.query.customerId+"' ",function(err,row){
-		// /console.log(row);
+	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND customerId='"+req.query.customerId+"' AND accountID='"+req.query.accountId+"'",function(err,row){
+
 		if(!row){
-			res.status(209).send("Invalid Customer Id!");
+			res.status(209).send("Invalid Customer Id/Account Id/No Account for Customer!");
 			return;
 		}
 	
