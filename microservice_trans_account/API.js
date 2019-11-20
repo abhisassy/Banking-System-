@@ -133,7 +133,6 @@ app.post("/normalTransfer", function(req, res, next) {
 
 app.get("/checkBalance", function(req, res, next) {
     console.log("checkBalanceBalance API called")
-    console.log(req)
 
     axios.get(dbUrl+"/getAccountInfo",{
         params :{
@@ -176,9 +175,10 @@ app.post("/updateProfile", function(req, res, next) {
     console.log("updateProfile API called")
     axios.get(dbUrl+"/updateProfile",{
         params :{
-            firstName  : req.body.firstName,
-            lastName   : req.body.lastName,
-            email      : req.body.email,
+            customerId  : req.body.customerId,
+            firstName   : req.body.firstName,
+            lastName    : req.body.lastName,
+            email       : req.body.email,
             
         }
     })
@@ -198,7 +198,7 @@ app.post("/newAccount", function(req, res, next) {
     axios.get(dbUrl+"/newAccount",{
         params :{
             customerId  : req.body.customerId,
-            balance     : req.body.balance,
+            balance     : 0,
             status      : req.body.status,
             cards       : 0
         }

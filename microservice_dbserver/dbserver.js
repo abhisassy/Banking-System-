@@ -359,17 +359,47 @@ app.get("/updateProfile", function(req, res) {
 		}
 	})
 })
+function randomIntInc(low, high) {
+	return Math.floor(Math.random() * (high - low + 1) + low)
+}
 app.get("/newAccount", function(req, res) {
+	var db = Database.getInstance();
+	console.log("newAccount on DBServer")
+	console.log(req.query)
+	db.get("select * from Customer where customerID ='"+req.query.customerId+"'",function(err,row){
 
+		if(!row){
+			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id!'}");
+			return;
+		}
+		else{
+			const id = randomIntInc(100,10000)
+			let accountID = "AC"+id.toString()
+			db.run("insert into Account values ('"+accountID+"', '"+req.query.customerId+"',0 ,'active', 0")
+			db.get("select * from Account where accountID ='"+accountID+"'",function(err,row){
+
+				if(!row){
+					res.status(209).send("{'result':'Error', 'Error':'No New Account!'}");
+					return;
+				}
+				else{
+					console.log(row)
+					res.status(200).send(row);
+					return;
+				}
+			})
+			
+		}
+	})
 })
 app.get("/deleteAccount", function(req, res) {
 
 })
 app.get("/getAccountInfo", function(req, res) {
 	var db = Database.getInstance();
-	console.log("checkBalance on DBServer")
+	console.log("getAccountInfo on DBServer")
 	console.log(req.query)
-	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcAccount+"'",function(err,row){
+	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.accountId+"'",function(err,row){
 
 		if(!row){
 			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id/Account Id/No Account for Customer!'}");
