@@ -2,7 +2,7 @@
   "name": "banking-system",
   "version": "1.0.0",
   "description": "Software Engineering Project",
-  "main": "app.js",
+  "main": "API.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -21,6 +21,7 @@
     "nodemon": "^1.18.10",
     "path": "^0.12.7",
     "sha1": "^1.1.1",
-    "sqlite": "^3.0.1"
+    "sqlite": "^3.0.1",
+    "axios": "0.19.0"
   }
 }

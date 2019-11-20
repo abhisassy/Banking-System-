@@ -2,14 +2,12 @@ const express	=	require('express')
 const path		= 	require('path')
 const fs		= 	require('fs')
 var bodyParser 	=	require('body-parser')
-var sqlite3 	=	require('sqlite3').verbose()
 const cors 		=	require('cors')
 const crypto    =   require('crypto')
 const sha1      =   require('sha1')
-const request   =   require('request')
+const axios   =   require('axios')
 const app		=	express()
 
-var fs          = require('fs')
 var config      = JSON.parse(fs.readFileSync('../config.json', 'utf8'))
 const portNo	= config.testing.api.portNo
 const dbUrl     = config.testing.url + ":" + config.testing.dbserver.portNo
