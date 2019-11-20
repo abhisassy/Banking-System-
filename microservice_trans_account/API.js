@@ -197,10 +197,8 @@ app.post("/newAccount", function(req, res, next) {
     
     axios.get(dbUrl+"/newAccount",{
         params :{
-            customerId  : req.body.customerId,
-            balance     : 0,
-            status      : req.body.status,
-            cards       : 0
+            customerId  : req.body.customerId
+            
         }
     })
     .then(response => {
@@ -220,7 +218,7 @@ app.post("/deleteAccount", function(req, res, next) {
         params :{
             customerId  : req.body.customerId,
             accountID   : req.body.accountId,
-            status      : req.body.status
+            password   :  req.body.password
         }
     })
     .then(response => {

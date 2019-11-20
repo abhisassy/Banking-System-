@@ -359,9 +359,11 @@ app.get("/updateProfile", function(req, res) {
 		}
 	})
 })
+
 function randomIntInc(low, high) {
 	return Math.floor(Math.random() * (high - low + 1) + low)
 }
+
 app.get("/newAccount", function(req, res) {
 	var db = Database.getInstance();
 	console.log("newAccount on DBServer")
@@ -375,7 +377,7 @@ app.get("/newAccount", function(req, res) {
 		else{
 			const id = randomIntInc(100,10000)
 			let accountID = "AC"+id.toString()
-			db.run("insert into Account values ('"+accountID+"', '"+req.query.customerId+"',0 ,'active', 0")
+			db.run("insert into Account values ('"+accountID+"', '"+req.query.customerId+"',0 , '"+accountID+"@okbank',0 , 'active')")
 			db.get("select * from Account where accountID ='"+accountID+"'",function(err,row){
 
 				if(!row){
@@ -392,8 +394,41 @@ app.get("/newAccount", function(req, res) {
 		}
 	})
 })
-app.get("/deleteAccount", function(req, res) {
 
+app.get("/deleteAccount", function(req, res) {
+	var db = Database.getInstance();
+	console.log("newAccount on DBServer")
+	console.log(req.query)
+	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.accountID+"'",function(err,row){
+
+		if(!row){
+			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id/Account Id'}");
+			return;
+		}
+		else{
+			db.get("select * from Users where customerID ='"+req.query.customerId+"'",function(err,row){
+				var pwd = row['password']
+				console.log(row)
+
+				db.get("select * from Account where accountID ='"+req.query.accountID+"'",function(err,row){
+					console.log(row)
+					if(!row){
+						res.status(209).send("{'result':'Error', 'Error':'No Account Present!'}");
+						return;
+					} else if((req.query.password == pwd) && (row['status']=="active") && (row['balance']<1)){
+						db.run("delete from Account where accountId='"+req.query.accountID+"'")
+						console.log(row)
+						res.status(200).send({'result':'Deleted', 'Message':'Deleted Account No. '+req.query.accountID+' successfully'});
+						return;
+					} else {
+						res.status(209).send("{'result':'Error', 'Error':'Credential Matching Issue'}");
+						return;
+					}
+				})
+			})
+			
+		}
+	})
 })
 app.get("/getAccountInfo", function(req, res) {
 	var db = Database.getInstance();
