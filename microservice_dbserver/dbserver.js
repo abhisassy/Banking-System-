@@ -141,32 +141,76 @@ app.get("/validateuser",function(req,res){
 //Withdraw Money
 app.get("/withdrawMoney", function(req, res) {
 	var db = Database.getInstance();
-	
-	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND customerId='"+req.query.customerId+"' AND accountID='"+req.query.accountId+"'",function(err,row){
+	console.log("withdrawMoney on DBServer")
+	console.log(req.query)
+	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.accountId+"'",function(err,row){
 
 		if(!row){
-			res.status(209).send("Invalid Customer Id/Account Id/No Account for Customer!");
+			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id/Account Id/No Account for Customer!'}");
 			return;
 		}
-	
-		db.get("select * from Users where customerId='"+req.query.customerId+"'",function(err,row){
-		
-			if(!row){			
-				db.run("insert into Users values('"+req.query.customerId+"', '"+req.query.password+"', '"+req.query.recoveryQ+"', '"+req.query.recoveryA+"')")
-				res.status(201).send("User Details Added")
-			}
-			else{
-				res.status(409).send("An existing account is linked with this Customer ID!");
-			}
-
-		})
+		else{
+			db.get("select * from Account where accountID='"+req.query.accountId+"'",function(err,row){
+				console.log(row)
+				if(row['balance']<req.query.amount){			
+					res.status(209).send("{'result':'Error', 'Error':'Not Enough Balance'}");
+					return;
+				}
+				else{
+					db.run("update Account set balance = balance - "+req.query.amount+" where customerID='"+req.query.customerId+"' AND accountId='"+req.query.accountId+"'")
+					res.status(200).send(row);
+				}
+				
+			})
+		}
 	})
+
 })
 app.get("/depositMoney", function(req, res) {
+	var db = Database.getInstance();
+	console.log("depositMoney on DBServer")
+	console.log(req.query)
+	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.accountId+"'",function(err,row){
 
+		if(!row){
+			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id/Account Id/No Account for Customer!'}");
+			return;
+		}
+		else{
+			db.get("select * from Account where accountID='"+req.query.accountId+"'",function(err,row){
+				console.log(row)
+				db.run("update Account set balance = balance + "+req.query.amount+" where customerID='"+req.query.customerId+"' AND accountId='"+req.query.accountId+"'")
+				res.status(200).send(row);
+			})
+		}
+	})
 })
 app.get("/instantTransfer", function(req, res) {
+	var db = Database.getInstance();
+	console.log("withdrawMoney on DBServer")
+	console.log(req.query)
+	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.accountId+"'",function(err,row){
 
+		if(!row){
+			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id/Account Id/No Account for Customer!'}");
+			return;
+		}
+		else{
+			db.get("select * from Account where accountID='"+req.query.accountId+"'",function(err,row){
+				console.log(row)
+				if(row['balance']<req.query.amount){			
+					res.status(209).send("{'result':'Error', 'Error':'Not Enough Balance'}");
+					return;
+				}
+				else{
+					db.run("update Account set balance = balance - "+req.query.amount+" where customerID='"+req.query.customerId+"' AND accountId='"+req.query.accountId+"'")
+					res.status(200).send(row);
+				}
+				
+			})
+		}
+	})
+	
 })
 app.get("/upiTransfer", function(req, res) {
 
@@ -175,6 +219,30 @@ app.get("/normalTransfer", function(req, res) {
 
 })
 app.get("/checkBalance", function(req, res) {
+	var db = Database.getInstance();
+	console.log("checkBalance on DBServer")
+	console.log(req.query)
+	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.accountId+"'",function(err,row){
+
+		if(!row){
+			res.status(209).send("Invalid Customer Id/Account Id/No Account for Customer!");
+			return;
+		}
+		else{
+			db.get("select * from Account where accountID='"+req.query.accountId+"'",function(err,row){
+			
+				if(!row){			
+					res.status(209).send("Some Other Error");
+					return;
+				}
+				else{
+					console.log(row)
+					res.status(200).send(row);
+				}
+				
+			})
+		}
+	})
 
 })
 app.get("/getProfile", function(req, res) {

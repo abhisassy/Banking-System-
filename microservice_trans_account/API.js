@@ -37,7 +37,7 @@ app.post("/withdrawMoney", function(req, res, next) {
         }
     })
     .then(response => {
-        res.status(response.status).sendFile(path.join(__dirname, homePage));
+        res.status(response.status).send(response.data);
     })
 	  .catch(error => {
             console.log(error.response.data)
@@ -56,7 +56,7 @@ app.post("/depositMoney", function(req, res, next) {
         }
     })
     .then(response => {
-        res.status(response.status).sendFile(path.join(__dirname, homePage));
+        res.status(response.status).send(response.data);
     })
 	  .catch(error => {
             console.log(error.response.data)
@@ -78,7 +78,7 @@ app.post("/instantTransfer", function(req, res, next) {
         }
     })
     .then(response => {
-        res.status(response.status).sendFile(path.join(__dirname, homePage));
+        res.status(response.status).send(response.data);
     })
 	  .catch(error => {
             console.log(error.response.data)
@@ -101,7 +101,7 @@ app.post("/upiTransfer", function(req, res, next) {
         }
     })
     .then(response => {
-        res.status(response.status).sendFile(path.join(__dirname, homePage));
+        res.status(response.status).send(response.data);
     })
 	  .catch(error => {
             console.log(error.response.data)
@@ -121,7 +121,7 @@ app.post("/normalTransfer", function(req, res, next) {
         }
     })
     .then(response => {
-        res.status(response.status).sendFile(path.join(__dirname, homePage));
+        res.status(response.status).send(response.data);
     })
 	  .catch(error => {
             console.log(error.response.data)
@@ -133,11 +133,12 @@ app.post("/normalTransfer", function(req, res, next) {
 
 app.get("/checkBalance", function(req, res, next) {
     console.log("checkBalanceBalance API called")
-    
+    console.log(req)
+
     axios.get(dbUrl+"/checkBalance",{
         params :{
-            customerId  : req.body.customerId,
-            accountId   : req.body.accountId,
+            customerId  : req.query.customerId,
+            accountId   : req.query.accountId,
         }
     })
     .then(response => {
@@ -158,7 +159,7 @@ app.get("/getProfile", function(req, res, next) {
     
     axios.get(dbUrl+"/getProfile",{
         params :{
-            customerId  : req.body.customerId,
+            customerId  : req.query.customerId,
         }
     })
     .then(response => {
