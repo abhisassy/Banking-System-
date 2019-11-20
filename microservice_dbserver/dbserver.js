@@ -111,7 +111,6 @@ app.get("/removeuser",function(req,res){
 })
 
 
-
 //validate 
 app.get("/validateuser",function(req,res){
 	var db = Database.getInstance();
@@ -139,4 +138,66 @@ app.get("/validateuser",function(req,res){
 
 })
 
+app.get("/withdrawMoney", function(req, res) {
+	var db = Database.getInstance();
+	
+	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND customerId='"+req.query.customerId+"' ",function(err,row){
+		// /console.log(row);
+		if(!row){
+			res.status(209).send("Invalid Customer Id!");
+			return;
+		}
+	
+		db.get("select * from Users where customerId='"+req.query.customerId+"'",function(err,row){
+		
+			if(!row){			
+				db.run("insert into Users values('"+req.query.customerId+"', '"+req.query.password+"', '"+req.query.recoveryQ+"', '"+req.query.recoveryA+"')")
+				res.status(201).send("User Details Added")
+			}
+			else{
+				res.status(409).send("An existing account is linked with this Customer ID!");
+			}
+
+		})
+	})
+})
+app.get("/depositMoney", function(req, res) {
+
+})
+app.get("/instantTransfer", function(req, res) {
+
+})
+app.get("/upiTransfer", function(req, res) {
+
+})
+app.get("/normalTransfer", function(req, res) {
+
+})
+app.get("/checkBalance", function(req, res) {
+
+})
+app.get("/getProfile", function(req, res) {
+
+})
+app.get("/updateProfile", function(req, res) {
+
+})
+app.get("/newAccount", function(req, res) {
+
+})
+app.get("/deleteAccount", function(req, res) {
+
+})
+app.get("/getAccountInfo", function(req, res) {
+
+})
+app.get("/addCard", function(req, res) {
+
+})
+app.get("/getCardInfo", function(req, res) {
+
+})
+app.get("/deteleCard", function(req, res) {
+
+})
 app.listen(portNo)

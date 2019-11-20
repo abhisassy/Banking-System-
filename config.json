@@ -7,6 +7,9 @@
         "signup" :{
             "portNo": 2000
         },
+        "api": {
+            "portNo": 4000
+        },
         "dbserver" : {
             "portNo": 3000,
             "dbPath" : "../data/bankingSystem.db"
