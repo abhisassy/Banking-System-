@@ -185,38 +185,132 @@ app.get("/depositMoney", function(req, res) {
 		}
 	})
 })
+
 app.get("/instantTransfer", function(req, res) {
 	var db = Database.getInstance();
 	console.log("withdrawMoney on DBServer")
 	console.log(req.query)
-	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.accountId+"'",function(err,row){
+	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcAccount+"'",function(err,row){
 
 		if(!row){
 			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id/Account Id/No Account for Customer!'}");
 			return;
 		}
 		else{
-			db.get("select * from Account where accountID='"+req.query.accountId+"'",function(err,row){
+			db.get("select * from Account where accountID='"+req.query.srcAccount+"'",function(err,row){
 				console.log(row)
 				if(row['balance']<req.query.amount){			
 					res.status(209).send("{'result':'Error', 'Error':'Not Enough Balance'}");
 					return;
 				}
-				else{
-					db.run("update Account set balance = balance - "+req.query.amount+" where customerID='"+req.query.customerId+"' AND accountId='"+req.query.accountId+"'")
+				else if(req.query.priority=="true") {
+					db.get("select * from Account where accountID='"+req.query.srcAccount+"'",function(err,row) {
+						if(!row) {
+							res.status(209).send("{'result':'Error', 'Error':'Invalid Destination Account Id!'}");
+							return;
+						}
+					})
+					db.run("update Account set balance = balance - "+req.query.amount+" where customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcAccount+"'")
+					db.run("update Account set balance = balance + "+req.query.amount+" where accountId='"+req.query.destAccount+"'")
+					db.run("insert into 'transaction' values ('"+req.query.destAccount+"', '"+req.query.srcAccount+"', '"+req.query.amount+"', '"+req.query.priority+"')")
+					res.status(200).send(row);
+				}
+				else {
+					db.get("select * from Account where accountID='"+req.query.srcAccount+"'",function(err,row) {
+						if(!row) {
+							res.status(209).send("{'result':'Error', 'Error':'Invalid Destination Account Id!'}");
+							return;
+						}
+					})
+					db.run("update Account set balance = balance - "+req.query.amount+" where customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcAccount+"'")
+					db.run("insert into 'transaction' values ('"+req.query.destAccount+"', '"+req.query.srcAccount+"', '"+req.query.amount+"', '"+req.query.priority+"')")
 					res.status(200).send(row);
 				}
 				
 			})
 		}
 	})
-	
+
 })
 app.get("/upiTransfer", function(req, res) {
+	var db = Database.getInstance();
+	console.log("withdrawMoney on DBServer")
+	console.log(req.query)
+	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcUPI+"'",function(err,row){
 
+		if(!row){
+			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id/Account Id/No Account for Customer!'}");
+			return;
+		}
+		else{
+			db.get("select * from Account where accountID='"+req.query.srcUPI+"'",function(err,row){
+				console.log(row)
+				if(row['balance']<req.query.amount){			
+					res.status(209).send("{'result':'Error', 'Error':'Not Enough Balance'}");
+					return;
+				}
+				else {
+					db.get("select * from Account where accountID='"+req.query.srcUPI+"'",function(err,row) {
+						if(!row) {
+							res.status(209).send("{'result':'Error', 'Error':'Invalid Destination Account Id!'}");
+							return;
+						}
+					})
+					db.run("update Account set balance = balance - "+req.query.amount+" where customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcUPI+"'")
+					db.run("update Account set balance = balance + "+req.query.amount+" where accountId='"+req.query.destUPI+"'")
+					db.run("insert into 'UPItransaction' values ('"+req.query.srcUPI+"', '"+req.query.destUPI+"', '"+req.query.amount+"')")
+					res.status(200).send(row);
+				}
+				
+			})
+		}
+	})
 })
-app.get("/normalTransfer", function(req, res) {
 
+app.get("/normalTransfer", function(req, res) {
+	var db = Database.getInstance();
+	console.log("withdrawMoney on DBServer")
+	console.log(req.query)
+	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcAccount+"'",function(err,row){
+
+		if(!row){
+			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id/Account Id/No Account for Customer!'}");
+			return;
+		}
+		else{
+			db.get("select * from Account where accountID='"+req.query.srcAccount+"'",function(err,row){
+				console.log(row)
+				if(row['balance']<req.query.amount){			
+					res.status(209).send("{'result':'Error', 'Error':'Not Enough Balance'}");
+					return;
+				}
+				else if(req.query.priority=="true") {
+					db.get("select * from Account where accountID='"+req.query.srcAccount+"'",function(err,row) {
+						if(!row) {
+							res.status(209).send("{'result':'Error', 'Error':'Invalid Destination Account Id!'}");
+							return;
+						}
+					})
+					db.run("update Account set balance = balance - "+req.query.amount+" where customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcAccount+"'")
+					db.run("update Account set balance = balance + "+req.query.amount+" where accountId='"+req.query.destAccount+"'")
+					db.run("insert into 'transaction' values ('"+req.query.destAccount+"', '"+req.query.srcAccount+"', '"+req.query.amount+"', '"+req.query.priority+"')")
+					res.status(200).send(row);
+				}
+				else {
+					db.get("select * from Account where accountID='"+req.query.srcAccount+"'",function(err,row) {
+						if(!row) {
+							res.status(209).send("{'result':'Error', 'Error':'Invalid Destination Account Id!'}");
+							return;
+						}
+					})
+					db.run("update Account set balance = balance - "+req.query.amount+" where customerID='"+req.query.customerId+"' AND accountId='"+req.query.srcAccount+"'")
+					db.run("insert into 'transaction' values ('"+req.query.destAccount+"', '"+req.query.srcAccount+"', '"+req.query.amount+"', '"+req.query.priority+"')")
+					res.status(200).send(row);
+				}
+				
+			})
+		}
+	})
 })
 app.get("/checkBalance", function(req, res) {
 	var db = Database.getInstance();
