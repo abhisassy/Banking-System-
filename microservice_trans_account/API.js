@@ -5,7 +5,7 @@ var bodyParser 	=	require('body-parser')
 const cors 		=	require('cors')
 const crypto    =   require('crypto')
 const sha1      =   require('sha1')
-const axios   =   require('axios')
+const axios     =   require('axios')
 const app		=	express()
 
 var config      = JSON.parse(fs.readFileSync('../config.json', 'utf8'))
@@ -131,6 +131,24 @@ app.post("/normalTransfer", function(req, res, next) {
 
 })
 
+app.get("/viewTransac", function(req, res, next) {
+    console.log("upiTransfer API called")
+
+    axios.get(dbUrl+"/viewTransac",{
+		params :{
+            customerId  : req.query.customerId
+        }
+    })
+    .then(response => {
+        res.status(response.status).send(response.data);
+    })
+	  .catch(error => {
+            console.log(error.response.data)
+            console.log(error.response.status)
+            res.status(error.response.status).send(error.response.data)
+    })
+})
+
 app.get("/checkBalance", function(req, res, next) {
     console.log("checkBalanceBalance API called")
 
@@ -198,7 +216,6 @@ app.post("/newAccount", function(req, res, next) {
     axios.get(dbUrl+"/newAccount",{
         params :{
             customerId  : req.body.customerId
-            
         }
     })
     .then(response => {

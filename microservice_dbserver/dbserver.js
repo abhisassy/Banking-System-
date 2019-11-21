@@ -235,7 +235,7 @@ app.get("/instantTransfer", function(req, res) {
 
 app.get("/upiTransfer", function(req, res) {
 	var db = Database.getInstance();
-	console.log("withdrawMoney on DBServer")
+	console.log("upiTransfer on DBServer")
 	console.log(req.query)
 	db.get("select * from Customer, Account where Customer.customerID = Account.customerID AND Account.customerID='"+req.query.customerId+"' AND UPI='"+req.query.srcUPI+"'",function(err,row){
 
@@ -315,11 +315,12 @@ app.get("/normalTransfer", function(req, res) {
 	})
 })
 
-app.get("/getProfile", function(req, res) {
+app.get("/viewTransac", function(req, res) {
 	var db = Database.getInstance();
-	console.log("getProfile on DBServer")
+	console.log("viewTransac on DBServer")
 	console.log(req.query)
-	db.get("select * from Customer where customerID ='"+req.query.customerId+"'",function(err,row){
+	db.all("select * from Customer, \"Account\", \"transaction\" where Customer.customerID = Account.customerID AND srcAcc = Account.accountId AND Account.customerID ='"+req.query.customerId+"'",function(err,row){
+		//db.all("select * from \"Account\", \"transaction\" where srcAcc = Account.accountId",function(err,row){
 
 		if(!row){
 			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id!'}");
@@ -331,6 +332,24 @@ app.get("/getProfile", function(req, res) {
 		}
 	})
 })
+
+app.get("/getProfile", function(req, res) {
+	var db = Database.getInstance();
+	console.log("getProfile on DBServer")
+	console.log(req.query)
+	db.all("select * from \"Customer\", \"Account\" where Customer.customerID = Account.customerID AND Account.customerID ='"+req.query.customerId+"'",function(err,row){
+
+		if(!row){
+			res.status(209).send("{'result':'Error', 'Error':'Invalid Customer Id!'}");
+			return;
+		}
+		else{
+			console.log(row)
+			res.status(200).send(row);
+		}
+	})
+})
+
 app.get("/updateProfile", function(req, res) {
 	var db = Database.getInstance();
 	console.log("withdrawMoney on DBServer")
